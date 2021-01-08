@@ -14,8 +14,8 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 // @desc    Upload User Photo
-// @route   PATCH /api/v1/user/:id/photo
-// @access  Private/Current User
+// @route   PATCH /api/v1/users/personal/avatar
+// @access  Private ==> Current User
 exports.uploadAvatar = multer({
   dest: process.env.FILE_UPLOAD_PATH_USER,
   limits: {
@@ -35,9 +35,14 @@ exports.uploadAvatar = multer({
   }
 }).single('photo');
 
+// @desc    Resizing User Photo
+// @route   PATCH /api/v1/users/personal/avatar
+// @access  Private ==> Current User
 exports.resizeImages = catchAsync(async (req, res) => {
+  // Getting the image path after resizing it & Uploading it to the database
   const image = await imageProcess.imageUpload(req);
 
+  // Updating The User's Avatar Field by assigning the Avatar's Path to it.
   await User.findByIdAndUpdate(
     req.user.id,
     { avatar: image },
@@ -47,16 +52,27 @@ exports.resizeImages = catchAsync(async (req, res) => {
     }
   );
 
+  // Process Done Successfully
   res.status(200).json({
     status: 'success',
     path: image
   });
 });
 
+// @desc    Deleting User's Avatar
+// @route   DELETE /api/v1/users/personal/avatar
+// @access  Private ==> Current User
 exports.deleteAvatar = catchAsync(async (req, res, next) => {
+  // Gettin User's Data From the Database
   const user = await User.findById(req.user.id);
+
+  // Calling The imageDelete Function to Delete the Avatar by sending to it User's Data
   const Delete = await imageProcess.imageDelete(user);
+
+  // If the imageData Returned false, then thi means that the function found the avatar's field and it found that this field doesn't contain any null data (Which means it contains the actuall path of the avatar)
+  // The imageDelete Function will go then to the server storage where the avatar locates and then delete that avatar
   if (!Delete) {
+    // Updating The User's Data by setting the avatar's field to undefined
     await User.findByIdAndUpdate(
       req.user.id,
       { avatar: undefined },
@@ -66,18 +82,27 @@ exports.deleteAvatar = catchAsync(async (req, res, next) => {
       }
     );
 
+    // Process Done Successfully
     res.status(200).json({
       status: 'success',
       message: 'Avatar Successfully Deleted'
     });
   }
+
+  // If the imageDelete function found that the avatar's field contain null then it will return true, which means you can't delete something that doesn't exist.
   res.status(400).json({
     message: 'There is no avatar to delete'
   });
 });
 
+// @desc    Get User's Avatar
+// @route   GET /api/v1/users/:id/avatar
+// @access  Private ==> Current User
 exports.getUserAvatar = catchAsync(async (req, res, next) => {
+  // Get The User From The Database
   const user = await User.findById(req.params.id);
+
+  // Check if the user exists and the Uer's Avatar Field not equeal to NULL
   if (!user || user.avatar == null) {
     return next(
       new AppError(
@@ -86,6 +111,8 @@ exports.getUserAvatar = catchAsync(async (req, res, next) => {
       )
     );
   }
+
+  // Response with Success
   res.status(200).json({
     status: 'success',
     path: user.avatar
@@ -120,7 +147,7 @@ exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
 
 // @desc    Get Current User Data
-// @route   GET /api/v1/users/me
+// @route   GET /api/v1/users/personal
 // @access  Private ==> Current User
 exports.getMe = catchAsync(async (req, res, next) => {
   req.params.id = req.user.id;
@@ -128,9 +155,10 @@ exports.getMe = catchAsync(async (req, res, next) => {
 });
 
 // @desc    Update User Details (Name / Email)
-// @route   PATCH /api/v1/users/updateDetails
+// @route   PATCH /api/v1/users/personal
 // @access  Private ==> Current User
 exports.updateMe = catchAsync(async (req, res, next) => {
+  // Check if the user trying to update his password
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
@@ -154,7 +182,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 });
 
 // @desc    Delete current logged in user data
-// @route   DELETE /api/v1/users/deleteMe
+// @route   DELETE /api/v1/users/personal
 // @access  Private ==> Current User
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.deleteOne({ _id: req.user.id });
