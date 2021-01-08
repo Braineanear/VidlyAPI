@@ -22,6 +22,9 @@ app.enable('trust proxy');
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Set Cookie parser
 app.use(cookieParser());
 
