@@ -174,7 +174,7 @@ exports.restrictTo = (...roles) => (req, res, next) => {
 };
 
 // @desc      Forgot password
-// @route     POST /api/v1/users/forgotpassword
+// @route     POST /api/v1/users/forgotPassword
 // @access    Public
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // Get user based on POSTed email
@@ -224,7 +224,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 });
 
 // @desc      Reset password
-// @route     PATCH /api/v1/users/resetpassword/:resettoken
+// @route     PATCH /api/v1/users/resetPassword/:resettoken
 // @access    Public
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // Get hashed token
@@ -255,7 +255,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 });
 
 // @desc      Update password
-// @route     PATCH /api/v1/users/updatepassword
+// @route     PATCH /api/v1/users/updatePassword
 // @access    Private/Current User
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // Get user from collection
@@ -277,7 +277,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 });
 
 // @desc    Confirm Email
-// @route   GET /api/v1/users/confirmemail
+// @route   GET /api/v1/users/confirmEmail
 // @access  Public
 exports.confirmEmail = catchAsync(async (req, res, next) => {
   // Grab token from email
