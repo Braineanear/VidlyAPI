@@ -93,15 +93,15 @@ const setUpExpress = () => {
     console.error('with headers', appCtx.req.headers);
   });
 
-  // Handle unhandled promise rejections
-  process.on('unhandledRejection', (err) => {
-    console.log(chalk.bgRed('UNHANDLED REJECTION! 💥 Shutting down...'));
-    console.log(err.name, err.message);
-    // Close server & exit process
-    server.close(() => {
-      process.exit(1);
-    });
-  });
+  // // Handle unhandled promise rejections
+  // process.on('unhandledRejection', (err) => {
+  //   console.log(chalk.bgRed('UNHANDLED REJECTION! 💥 Shutting down...'));
+  //   console.log(err.name, err.message);
+  //   // Close server & exit process
+  //   server.close(() => {
+  //     process.exit(1);
+  //   });
+  // });
 
   process.on('SIGTERM', () => {
     console.log('👋 SIGTERM RECEIVED. Shutting down gracefully');
