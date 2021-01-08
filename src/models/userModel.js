@@ -81,17 +81,17 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 // Check if User Changed The Password After The Token Was Issued
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
-    const chanedTimestamp = parseInt(
+    const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,
       10
     );
-    return JWTTimestamp > chanedTimestamp;
+    return JWTTimestamp < changedTimestamp;
   }
-  return false; // NOT CHANGED
+  return false; // False means not changed
 };
 
 // Generate The Reset Password Token And Then Hashing it
-userSchema.methods.createPasswordRestToken = function () {
+userSchema.methods.createPasswordResetToken = function () {
   // Generating The Reset Password Token
   const resetToken = crypto.randomBytes(32).toString('hex');
 
