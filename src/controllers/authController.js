@@ -70,7 +70,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     message
   });
 
-  // 4) If everything ok, send token to client
+  // If everything ok, send token to client
   createSendToken(user, 201, res);
 });
 
@@ -102,8 +102,8 @@ exports.signin = catchAsync(async (req, res, next) => {
 });
 
 // @desc      Log user out / clear cookie
-// @route     GET /api/v1/auth/logout
-// @access    Private/Current User
+// @route     GET /api/v1/users/logout
+// @access    Private ==> Current User
 exports.logout = catchAsync(async (req, res, next) => {
   res.cookie('jwt', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
@@ -161,7 +161,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-// @desc      Specify who can access the route (user / admin / publisher)
+// @desc      Specify who can access the route (user / admin)
 // @route     No Route
 // @access    No Access
 exports.restrictTo = (...roles) => (req, res, next) => {
@@ -224,7 +224,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 });
 
 // @desc      Reset password
-// @route     PATCH /api/v1/users/resetPassword/:resettoken
+// @route     PATCH /api/v1/users/resetPassword/:token
 // @access    Public
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // Get hashed token
@@ -256,7 +256,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 // @desc      Update password
 // @route     PATCH /api/v1/users/updatePassword
-// @access    Private/Current User
+// @access    Private ==> Current User
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // Get user from collection
   const user = await User.findById(req.user.id).select('+password');
@@ -276,9 +276,9 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
-// @desc    Confirm Email
-// @route   GET /api/v1/users/confirmEmail
-// @access  Public
+// @desc      Confirm Email
+// @route     GET /api/v1/users/confirmEmail
+// @access    Public
 exports.confirmEmail = catchAsync(async (req, res, next) => {
   // Grab token from email
   const { token } = req.query;
@@ -310,6 +310,6 @@ exports.confirmEmail = catchAsync(async (req, res, next) => {
   // Save
   await user.save({ validateBeforeSave: false });
 
-  // 5) eturn token
+  // If everything ok, send token to client
   createSendToken(user, 200, res);
 });
