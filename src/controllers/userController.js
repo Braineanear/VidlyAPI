@@ -22,7 +22,6 @@ const filterObj = (obj, ...allowedFields) => {
 // @route   PATCH /api/v1/users/personal/avatar
 // @access  Private ==> Current User
 export const uploadAvatar = multer({
-  dest: process.env.FILE_UPLOAD_PATH,
   limits: {
     fileSize: 1000000
   },
