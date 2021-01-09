@@ -1,9 +1,11 @@
-const chalk = require('chalk');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cluster = require('cluster');
-const numCores = require('os').cpus().length;
-const app = require('./app');
+import chalk from 'chalk';
+import mongoose from 'mongoose';
+import { config } from 'dotenv';
+import cluster from 'cluster';
+import os from 'os';
+import app from './app.js';
+
+const numCores = os.cpus().length;
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (uncaughtExc) => {
@@ -22,6 +24,7 @@ const setupWorkerProcesses = () => {
 
   // Iterate on number of cores need to be utilized by an application
   // Current example will utilize all of them
+  // eslint-disable-next-line no-plusplus
   for (let i = 0; i < numCores; i++) {
     // Creating workers and pushing reference in an array
     // these references can be used to receive messages from workers
@@ -55,7 +58,7 @@ const setupWorkerProcesses = () => {
 
 // Setup an express server and define port to listen all incoming requests for this application
 const setUpExpress = () => {
-  dotenv.config({ path: 'config.env' });
+  config({ path: 'config.env' });
 
   const DB = process.env.DATABASE_CONNECTION.replace(
     '<PASSWORD>',
@@ -76,6 +79,23 @@ const setUpExpress = () => {
     console.log(
       chalk.bgGreen.black(`MongoDB Connected: ${con.connection.host}.`)
     );
+
+    mongoose.connection.on('connected', () => {
+      console.log(chalk.bgGreen.black('Mongoose connected to db'));
+    });
+
+    mongoose.connection.on('error', (err) => {
+      console.log(chalk.bgGreen.black(err.message));
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.log(chalk.bgGreen.black('Mongoose connection is disconnected.'));
+    });
+
+    process.on('SIGINT', async () => {
+      await mongoose.connection.close();
+      process.exit(0);
+    });
   };
 
   connectDB();
@@ -94,19 +114,19 @@ const setUpExpress = () => {
   });
 
   // Handle unhandled promise rejections
-  process.on('unhandledRejection', (err) => {
-    console.log(chalk.bgRed('UNHANDLED REJECTION! 💥 Shutting down...'));
-    console.log(err.name, err.message);
-    // Close server & exit process
-    server.close(() => {
-      process.exit(1);
-    });
-  });
+  // process.on('unhandledRejection', (err) => {
+  //   console.log(chalk.bgRed('UNHANDLED REJECTION! 💥 Shutting down...'));
+  //   console.log(err.name, err.message);
+  //   // Close server & exit process
+  //   server.close(() => {
+  //     process.exit(1);
+  //   });
+  // });
 
   process.on('SIGTERM', () => {
-    console.log('👋 SIGTERM RECEIVED. Shutting down gracefully');
+    console.log(chalk.bgRed('👋 SIGTERM RECEIVED. Shutting down gracefully'));
     server.close(() => {
-      console.log('💥 Process terminated!');
+      console.log(chalk.bgRed('💥 Process terminated!'));
     });
   });
 };
