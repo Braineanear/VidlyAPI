@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const moment = require('moment');
+import mongoose from 'mongoose';
+import moment from 'moment';
 
 const rentalSchema = new mongoose.Schema({
   customer: {
@@ -33,4 +33,4 @@ rentalSchema.methods.return = function () {
   this.rentalFee = rentalDays * this.movie.dailyRentalRate;
 };
 
-module.exports = mongoose.model('Rental', rentalSchema);
+export default mongoose.model('Rental', rentalSchema);
