@@ -1,7 +1,7 @@
-const crypto = require('crypto');
-const mongoose = require('mongoose');
-const validator = require('validator');
-const argon2 = require('argon2');
+import { randomBytes, createHash } from 'crypto';
+import mongoose from 'mongoose';
+import validator from 'validator';
+import { hash, verify } from 'argon2';
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -60,11 +60,11 @@ userSchema.pre('save', async function (next) {
   // Only Run This Function if The Password was Actually Modified
   if (!this.isModified('password')) return next();
 
-  // Salting & Hasing the Password
-  const salt = crypto.randomBytes(32);
-  this.password = await argon2.hash(this.password, { salt });
+  // Salting & Hashing the Password
+  const salt = randomBytes(32);
+  this.password = await hash(this.password, { salt });
 
-  // Deleteing The PasswordConfirm Field in The Database
+  // Deleting The PasswordConfirm Field in The Database
   this.passwordConfirm = undefined;
 });
 
@@ -78,7 +78,7 @@ userSchema.pre('save', function (next) {
 
 // Matching User Entered Password to The Hashed Password in The Database
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await argon2.verify(this.password, enteredPassword);
+  return await verify(this.password, enteredPassword);
 };
 
 // Check if User Changed The Password After The Token Was Issued
@@ -96,12 +96,11 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 // Generate The Reset Password Token And Then Hashing it
 userSchema.methods.createPasswordResetToken = function () {
   // Generating The Reset Password Token
-  const resetToken = crypto.randomBytes(32).toString('hex');
+  const resetToken = randomBytes(32).toString('hex');
 
   // Hashing The Generated Reset Password Token
   // Set The Hashed Token to The resetPasswordToken Field in The Database
-  this.resetPasswordToken = crypto
-    .createHash('sha256')
+  this.resetPasswordToken = createHash('sha256')
     .update(resetToken)
     .digest('hex');
 
@@ -112,24 +111,23 @@ userSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
-// Generate The Email Cofirmation Token and Then Hashing it
+// Generate The Email Confirmation Token and Then Hashing it
 userSchema.methods.generateEmailConfirmToken = function () {
-  // Generating The Email Cofirmation Token
-  const confirmationToken = crypto.randomBytes(32).toString('hex');
+  // Generating The Email Confirmation Token
+  const confirmationToken = randomBytes(32).toString('hex');
 
-  // Hashing The Generated Email Cofirmation Token
+  // Hashing The Generated Email Confirmation Token
   // Set The Hashed Token to the confirmEmailToken Field in The Database
-  this.confirmEmailToken = crypto
-    .createHash('sha256')
+  this.confirmEmailToken = createHash('sha256')
     .update(confirmationToken)
     .digest('hex');
 
   // Generating The Confirm Token Extend
-  const confirmTokenExtend = crypto.randomBytes(100).toString('hex');
+  const confirmTokenExtend = randomBytes(100).toString('hex');
   const confirmTokenCombined = `${confirmationToken}.${confirmTokenExtend}`;
 
   // Return The Token
   return confirmTokenCombined;
 };
 
-module.exports = mongoose.model('User', userSchema);
+export default mongoose.model('User', userSchema);
