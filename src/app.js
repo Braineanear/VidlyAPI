@@ -18,6 +18,7 @@ import userRouter from './routes/userRoutes.js';
 import genresRouter from './routes/genresRoutes.js';
 import customerRouter from './routes/customerRoutes.js';
 import movieRouter from './routes/movieRoutes.js';
+import rentalRouter from './routes/rentalRoutes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -77,6 +78,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/genres', genresRouter);
 app.use('/api/v1/customers', customerRouter);
 app.use('/api/v1/movies', movieRouter);
+app.use('/api/v1/rentals', rentalRouter);
 
 // When someone access route that does not exist
 app.all('*', (req, res, next) => {
