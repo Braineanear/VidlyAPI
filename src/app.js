@@ -1,21 +1,25 @@
-const express = require('express');
-const morgan = require('morgan');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const rateLimit = require('express-rate-limit');
-const helmet = require('helmet');
-const mongoSanitize = require('express-mongo-sanitize');
-const xss = require('xss-clean');
-const cors = require('cors');
-const compression = require('compression');
+import express from 'express';
+import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const AppError = require('./utils/appError');
-const globalErrorHandler = require('./controllers/errorController');
+import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
+import cors from 'cors';
+import compression from 'compression';
 
-const userRouter = require('./routes/userRoutes');
-const genresRouter = require('./routes/genresRoutes');
-const customerRouter = require('./routes/customerRoutes');
-const movieRouter = require('./routes/movieRoutes');
+import AppError from './utils/appError.js';
+import globalErrorHandler from './controllers/errorController.js';
+
+import userRouter from './routes/userRoutes.js';
+import genresRouter from './routes/genresRoutes.js';
+import customerRouter from './routes/customerRoutes.js';
+import movieRouter from './routes/movieRoutes.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
@@ -33,9 +37,6 @@ app.use(cookieParser());
 
 // Set security HTTP headers
 app.use(helmet());
-
-// Set static folder
-app.use(express.static(path.join(__dirname, 'public')));
 
 //Limit requests from the same API
 const limiter = rateLimit({
@@ -85,4 +86,4 @@ app.all('*', (req, res, next) => {
 // Handling Global Errors
 app.use(globalErrorHandler);
 
-module.exports = app;
+export default app;
