@@ -1,11 +1,11 @@
-const crypto = require('crypto');
-const { promisify } = require('util');
-const jwt = require('jsonwebtoken');
+import { createHash } from 'crypto';
+import { promisify } from 'util';
+import jwt from 'jsonwebtoken';
 
-const sendEmail = require('../utils/sendEmail');
-const AppError = require('../utils/appError');
-const catchAsync = require('../utils/catchAsync');
-const User = require('../models/userModel');
+import sendEmail from '../utils/sendEmail.js';
+import AppError from '../utils/appError.js';
+import catchAsync from '../utils/catchAsync.js';
+import User from '../models/userModel.js';
 
 // Generate Token
 const signToken = (id) =>
@@ -39,10 +39,10 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
-// @desc      Signup user
+// @desc      New User Account Registration
 // @route     POST /api/v1/users/signup
 // @access    Public
-exports.signup = catchAsync(async (req, res, next) => {
+export const signup = catchAsync(async (req, res, next) => {
   // Create user
   const user = await User.create({
     name: req.body.name,
@@ -74,10 +74,10 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(user, 201, res);
 });
 
-// @desc      Signin user
-// @route     POST /api/v1/auth/signin
+// @desc      User Login
+// @route     POST /api/v1/users/signup
 // @access    Public
-exports.signin = catchAsync(async (req, res, next) => {
+export const signin = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   // Check if email and password exist
@@ -101,10 +101,10 @@ exports.signin = catchAsync(async (req, res, next) => {
   createSendToken(user, 201, res);
 });
 
-// @desc      Log user out / clear cookie
+// @desc      User Logout / Clear Cookies
 // @route     GET /api/v1/users/logout
 // @access    Private ==> Current User
-exports.logout = catchAsync(async (req, res, next) => {
+export const logout = catchAsync(async (req, res, next) => {
   res.cookie('jwt', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true
@@ -112,14 +112,14 @@ exports.logout = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    messege: 'You have been successfully logged out!'
+    message: 'You have been successfully logged out!'
   });
 });
 
 // @desc      Only signed in users can access the route
 // @route     No Route
 // @access    No Access
-exports.protect = catchAsync(async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
   // Getting the token and check if it's there
   let token = '';
 
@@ -164,19 +164,21 @@ exports.protect = catchAsync(async (req, res, next) => {
 // @desc      Specify who can access the route (user / admin)
 // @route     No Route
 // @access    No Access
-exports.restrictTo = (...roles) => (req, res, next) => {
-  if (!roles.includes(req.user.role)) {
-    return next(
-      new AppError('You do not have permission to perform this action', 403)
-    );
-  }
-  next();
-};
+export function restrictTo(...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+}
 
 // @desc      Forgot password
 // @route     POST /api/v1/users/forgotPassword
 // @access    Public
-exports.forgotPassword = catchAsync(async (req, res, next) => {
+export const forgotPassword = catchAsync(async (req, res, next) => {
   // Get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
 
@@ -226,15 +228,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 // @desc      Reset password
 // @route     PATCH /api/v1/users/resetPassword/:token
 // @access    Public
-exports.resetPassword = catchAsync(async (req, res, next) => {
+export const resetPassword = catchAsync(async (req, res, next) => {
   // Get hashed token
-  const hasedToken = crypto
-    .createHash('sha256')
+  const hashedToken = createHash('sha256')
     .update(req.params.token)
     .digest('hex');
 
   const user = await User.findOne({
-    resetPasswordToken: hasedToken,
+    resetPasswordToken: hashedToken,
     resetPasswordExpire: { $gt: Date.now() }
   });
 
@@ -257,7 +258,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 // @desc      Update password
 // @route     PATCH /api/v1/users/updatePassword
 // @access    Private ==> Current User
-exports.updatePassword = catchAsync(async (req, res, next) => {
+export const updatePassword = catchAsync(async (req, res, next) => {
   // Get user from collection
   const user = await User.findById(req.user.id).select('+password');
 
@@ -279,7 +280,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 // @desc      Confirm Email
 // @route     GET /api/v1/users/confirmEmail
 // @access    Public
-exports.confirmEmail = catchAsync(async (req, res, next) => {
+export const confirmEmail = catchAsync(async (req, res, next) => {
   // Grab token from email
   const { token } = req.query;
 
@@ -288,8 +289,7 @@ exports.confirmEmail = catchAsync(async (req, res, next) => {
   }
 
   const splitToken = token.split('.')[0];
-  const confirmEmailToken = crypto
-    .createHash('sha256')
+  const confirmEmailToken = createHash('sha256')
     .update(splitToken)
     .digest('hex');
 
