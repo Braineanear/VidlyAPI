@@ -8,6 +8,7 @@
     "start:prod": "NODE_ENV=production nodemon src/server.js",
     "debug": "ndb src/server.js"
   },
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Braineanear/VidlyAPI.git"
@@ -22,6 +23,7 @@
     "argon2": "^0.27.1",
     "bcryptjs": "^2.4.3",
     "chalk": "^4.1.0",
+    "cloudinary": "^1.23.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -43,6 +45,7 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.17.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^7.1.0",
