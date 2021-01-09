@@ -1,32 +1,35 @@
-const express = require('express');
-const movieController = require('../controllers/movieController');
-const authController = require('../controllers/authController');
-const APIFeatures = require('../utils/apiFeatures');
-const Movie = require('../models/movieModel');
+import { Router } from 'express';
+import {
+  getAllMovies,
+  getMovie,
+  createMovie,
+  updateMovie,
+  deleteMovie
+} from '../controllers/movieController.js';
+import { protect, restrictTo } from '../controllers/authController.js';
+import APIFeatures from '../utils/apiFeatures.js';
+import Movie from '../models/movieModel.js';
 
-const router = express.Router();
+const router = Router();
 
 //===========================Public Routes===================================//
 //ANY ONE CAN ACCESS THESE ROUTES
 
 // Get All Movies Route
-router.get('/', APIFeatures(Movie), movieController.getAllMovies);
+router.get('/', APIFeatures(Movie), getAllMovies);
 
 // Get Specific Movie's Data Route
-router.get('/:id', movieController.getMovie);
+router.get('/:id', getMovie);
 
 //====================Admin's Routes / Private Routes=========================//
 // Protect all routes after this middleware
 // ONLY ADMIN CAN ACCESS THESE ROUTES
-router.use(authController.protect, authController.restrictTo('admin'));
+router.use(protect, restrictTo('admin'));
 
 // Creating New Movie Route
-router.post('/', movieController.createMovie);
+router.post('/', createMovie);
 
 //Main routes that admin can access to update an existing movie or deleting an existing movie
-router
-  .route('/:id')
-  .patch(movieController.updateMovie)
-  .delete(movieController.deleteMovie);
+router.route('/:id').patch(updateMovie).delete(deleteMovie);
 
-module.exports = router;
+export default router;
