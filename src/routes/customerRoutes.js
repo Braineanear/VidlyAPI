@@ -1,26 +1,32 @@
-const express = require('express');
-const customerController = require('../controllers/customerController');
-const authController = require('../controllers/authController');
-const APIFeatures = require('../utils/apiFeatures');
-const Customer = require('../models/customerModel');
+import { Router } from 'express';
+import {
+  getAllCustomers,
+  createCustomer,
+  getCustomer,
+  updateCustomer,
+  deleteCustomer
+} from '../controllers/customerController.js';
+import { protect, restrictTo } from '../controllers/authController.js';
+import APIFeatures from '../utils/apiFeatures.js';
+import Customer from '../models/customerModel.js';
 
-const router = express.Router();
+const router = Router();
 
 //====================Admin's Routes / Private Routes=========================//
 // Protect all routes after this middleware
 // ONLY ADMIN CAN ACCESS THESE ROUTES
-router.use(authController.protect, authController.restrictTo('admin'));
+router.use(protect, restrictTo('admin'));
 
-// Main Routes that allows the admin to ==> Get ALL Customers Data / Create New Customer / Get Speific Customer's Data / Updateing an Exisitng Customer / Deleting an Exisiting Customer
+// Main Routes that allows the admin to ==> Get ALL Customers Data / Create New Customer / Get Specific Customer's Data / Updating an Existing Customer / Deleting an Existing Customer
 router
   .route('/')
-  .get(APIFeatures(Customer), customerController.getAllCustomers)
-  .post(customerController.createCustomer);
+  .get(APIFeatures(Customer), getAllCustomers)
+  .post(createCustomer);
 
 router
   .route('/:id')
-  .get(customerController.getCustomer)
-  .patch(customerController.updateCustomer)
-  .delete(customerController.deleteCustomer);
+  .get(getCustomer)
+  .patch(updateCustomer)
+  .delete(deleteCustomer);
 
-module.exports = router;
+export default router;
