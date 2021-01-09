@@ -1,30 +1,30 @@
-const catchAsync = require('../utils/catchAsync');
-const Customer = require('../models/customerModel');
-const factory = require('./handlerFactory');
+import catchAsync from '../utils/catchAsync.js';
+import Customer from '../models/customerModel.js';
+import { getOne, createOne, updateOne, deleteOne } from './handlerFactory.js';
 
 // @desc    Get All Customers
 // @route   GET /api/v1/customers
 // @access  Private ==> Current User
-exports.getAllCustomers = catchAsync(async (req, res, next) => {
+export const getAllCustomers = catchAsync(async (req, res, next) => {
   res.status(200).json(res.advancedResults);
 });
 
-// @desc    Get Speific Customer's Data
+// @desc    Get Specific Customer's Data
 // @route   GET /api/v1/customers/:id
 // @access  Private ==> Current User
-exports.getCustomer = factory.getOne(Customer);
+export const getCustomer = getOne(Customer);
 
 // @desc    Create New Customer
 // @route   POST /api/v1/customers
 // @access  Private ==> Current User
-exports.createCustomer = factory.createOne(Customer);
+export const createCustomer = createOne(Customer);
 
 // @desc    Updating Customer's Data
 // @route   PATCH /api/v1/customers/:id
-// @access  Pivate ==> Admin
-exports.updateCustomer = factory.updateOne(Customer);
+// @access  Private ==> Admin
+export const updateCustomer = updateOne(Customer);
 
 // @desc    Deleting Customer's Data
 // @route   DELETE /api/v1/customers/:id
 // @access  Private ==> Admin
-exports.deleteCustomer = factory.deleteOne(Customer);
+export const deleteCustomer = deleteOne(Customer);
