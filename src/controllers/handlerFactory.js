@@ -1,11 +1,11 @@
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
+import catchAsync from '../utils/catchAsync.js';
+import AppError from '../utils/appError.js';
 
 // @desc    Get One Document
 // @route   GET ==> General Route
 // @access  Private/Public
-exports.getOne = (Model, populateOptions) =>
-  catchAsync(async (req, res, next) => {
+export function getOne(Model, populateOptions) {
+  return catchAsync(async (req, res, next) => {
     let query = Model.findById(req.params.id);
     if (populateOptions) query = query.populate(populateOptions);
 
@@ -20,12 +20,13 @@ exports.getOne = (Model, populateOptions) =>
       doc
     });
   });
+}
 
 // @desc    Create New Document
 // @route   POST ==> General Route
 // @access  Private
-exports.createOne = (Model) =>
-  catchAsync(async (req, res, next) => {
+export function createOne(Model) {
+  return catchAsync(async (req, res, next) => {
     const doc = await Model.create(req.body);
 
     res.status(200).json({
@@ -33,12 +34,13 @@ exports.createOne = (Model) =>
       doc
     });
   });
+}
 
 // @desc    Update One Document
 // @route   PATCH ==> General Route
 // @access  Private
-exports.updateOne = (Model) =>
-  catchAsync(async (req, res, next) => {
+export function updateOne(Model) {
+  return catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
@@ -53,12 +55,13 @@ exports.updateOne = (Model) =>
       doc
     });
   });
+}
 
 // @desc    Delete One Document
 // @route   DELETE ==> General Route
 // @access  Private
-exports.deleteOne = (Model) =>
-  catchAsync(async (req, res, next) => {
+export function deleteOne(Model) {
+  return catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
 
     if (!doc) {
@@ -70,3 +73,4 @@ exports.deleteOne = (Model) =>
       data: {}
     });
   });
+}
