@@ -5,10 +5,10 @@ import {
   getRental,
   updateRental,
   deleteRental
-} from '../controllers/rentalController';
-import { protect } from '../controllers/authController';
-import APIFeatures from '../utils/apiFeatures';
-import Rental from '../models/rentalModel';
+} from '../controllers/rentalController.js';
+import { protect } from '../controllers/authController.js';
+import APIFeatures from '../utils/apiFeatures.js';
+import Rental from '../models/rentalModel.js';
 
 const router = Router();
 
