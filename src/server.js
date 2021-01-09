@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import cluster from 'cluster';
 import os from 'os';
+// eslint-disable-next-line import/no-named-as-default-member
 import app from './app.js';
 
 const numCores = os.cpus().length;
