@@ -1,69 +1,81 @@
-const express = require('express');
-const userController = require('../controllers/userController');
-const authController = require('../controllers/authController');
-const APIFeatures = require('../utils/apiFeatures');
-const User = require('../models/userModel');
+import { Router } from 'express';
+import {
+  getMe,
+  getUser,
+  updateMe,
+  deleteMe,
+  uploadAvatar,
+  resizeImages,
+  deleteAvatar,
+  getUserAvatar,
+  getAllUsers,
+  createUser,
+  updateUser,
+  deleteUser
+} from '../controllers/userController.js';
+import {
+  signup,
+  signin,
+  forgotPassword,
+  resetPassword,
+  protect,
+  confirmEmail,
+  logout,
+  updatePassword,
+  restrictTo
+} from '../controllers/authController.js';
+import APIFeatures from '../utils/apiFeatures.js';
+import User from '../models/userModel.js';
 
-const router = express.Router();
+const router = Router();
 
 //===========================Public Routes===================================//
 //ANY ONE CAN ACCESS THESE ROUTES
-// Registeration Route
-router.post('/signup', authController.signup);
+// Registration Route
+router.post('/signup', signup);
 
 // Login Route
-router.post('/signin', authController.signin);
+router.post('/signin', signin);
 
 // Forgot Password Route
-router.post('/forgotPassword', authController.forgotPassword);
+router.post('/forgotPassword', forgotPassword);
 
-// Reseting Password Route
-router.patch('/resetPassword/:token', authController.resetPassword);
+// Resetting Password Route
+router.patch('/resetPassword/:token', resetPassword);
 
 //====================User's Routes / Private Routes=========================//
 // Protect all routes after this middleware
 // ONLY LOGGED IN USERS CAN ACCESS THESE ROUTES
-router.use(authController.protect);
+router.use(protect);
 
 // Personal Main Router
-router
-  .route('/personal')
-  .get(userController.getMe, userController.getUser)
-  .patch(userController.updateMe)
-  .delete(userController.deleteMe);
+router.route('/personal').get(getMe, getUser).patch(updateMe).delete(deleteMe);
 
 // Routes belong to the avatar for the Personal Route
 router
   .route('/personal/avatar')
-  .patch(userController.uploadAvatar, userController.resizeImages)
-  .delete(userController.deleteAvatar);
+  .patch(uploadAvatar, resizeImages)
+  .delete(deleteAvatar);
 
 // Email Confirmation Route
-router.get('/confirmEmail', authController.confirmEmail);
+router.get('/confirmEmail', confirmEmail);
 
 // Logout Route
-router.get('/logout', authController.logout);
+router.get('/logout', logout);
 
 // Get Avatar that belong to the user ID (ANY LOGGED IN USER CAN SEE USERS AVATARS)
-router.get('/:id/avatar', userController.getUserAvatar);
+router.get('/:id/avatar', getUserAvatar);
 
 // Updating The Password Route (Only Passwords / Logged in users only can access it)
-router.patch('/updatePassword', authController.updatePassword);
+router.patch('/updatePassword', updatePassword);
 
 //==================Admin's Routes / Private Routes===========================//
 // ONLY ADMIN CAN ACCESS THESE ROUTES
-router.use(authController.restrictTo('admin'));
+router.use(restrictTo('admin'));
 
-// Main routs that admin can access to get all users data/ create new user / get specific user's data / update specific user's data / or even delete an exsiting user
-router
-  .route('/')
-  .get(APIFeatures(User), userController.getAllUsers)
-  .post(userController.createUser);
+// Main routs that admin can access to get all users data/ create new user / get specific user's data / update specific user's data / or even delete an existing user
+router.route('/').get(APIFeatures(User), getAllUsers).post(createUser);
 
-router
-  .route('/:id')
-  .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(userController.deleteUser);
+router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
-module.exports = router;
+export default router;
