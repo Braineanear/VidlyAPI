@@ -1,9 +1,14 @@
-const multer = require('multer');
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
-const User = require('../models/userModel');
-const factory = require('./handlerFactory');
-const imageProcess = require('../utils/imageProcess');
+import multer from 'multer';
+import catchAsync from '../utils/catchAsync.js';
+import AppError from '../utils/appError.js';
+import User from '../models/userModel.js';
+import {
+  getOne,
+  createOne,
+  updateOne,
+  deleteOne as _deleteOne
+} from './handlerFactory.js';
+import { imageUpload, imageDelete } from '../utils/imageProcess.js';
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -16,8 +21,8 @@ const filterObj = (obj, ...allowedFields) => {
 // @desc    Upload User Photo
 // @route   PATCH /api/v1/users/personal/avatar
 // @access  Private ==> Current User
-exports.uploadAvatar = multer({
-  dest: process.env.FILE_UPLOAD_PATH_USER,
+export const uploadAvatar = multer({
+  dest: process.env.FILE_UPLOAD_PATH,
   limits: {
     fileSize: 1000000
   },
@@ -38,9 +43,15 @@ exports.uploadAvatar = multer({
 // @desc    Resizing User Photo
 // @route   PATCH /api/v1/users/personal/avatar
 // @access  Private ==> Current User
-exports.resizeImages = catchAsync(async (req, res) => {
+export const resizeImages = catchAsync(async (req, res) => {
+  // Check first if there is an existing avatar on the database
+  // If that's true, then call imageDelete function to delete them
+  const user = await User.findById(req.user.id).lean();
+  if (user.avatar != null) {
+    imageDelete(user);
+  }
   // Getting the image path after resizing it & Uploading it to the database
-  const image = await imageProcess.imageUpload(req);
+  const image = await imageUpload(req);
 
   // Updating The User's Avatar Field by assigning the Avatar's Path to it.
   await User.findByIdAndUpdate(
@@ -62,14 +73,14 @@ exports.resizeImages = catchAsync(async (req, res) => {
 // @desc    Deleting User's Avatar
 // @route   DELETE /api/v1/users/personal/avatar
 // @access  Private ==> Current User
-exports.deleteAvatar = catchAsync(async (req, res, next) => {
-  // Gettin User's Data From the Database
-  const user = await User.findById(req.user.id);
+export const deleteAvatar = catchAsync(async (req, res, next) => {
+  // Getting User's Data From the Database
+  const user = await User.findById(req.user.id).lean();
 
   // Calling The imageDelete Function to Delete the Avatar by sending to it User's Data
-  const Delete = await imageProcess.imageDelete(user);
+  const Delete = imageDelete(user);
 
-  // If the imageData Returned false, then thi means that the function found the avatar's field and it found that this field doesn't contain any null data (Which means it contains the actuall path of the avatar)
+  // If the imageData Returned false, then thi means that the function found the avatar's field and it found that this field doesn't contain any null data (Which means it contains the actual path of the avatar)
   // The imageDelete Function will go then to the server storage where the avatar locates and then delete that avatar
   if (!Delete) {
     // Updating The User's Data by setting the avatar's field to undefined
@@ -87,22 +98,22 @@ exports.deleteAvatar = catchAsync(async (req, res, next) => {
       status: 'success',
       message: 'Avatar Successfully Deleted'
     });
+  } else {
+    // If the imageDelete function found that the avatar's field contain null then it will return true, which means you can't delete something that doesn't exist.
+    res.status(400).json({
+      message: 'There is no avatar to delete'
+    });
   }
-
-  // If the imageDelete function found that the avatar's field contain null then it will return true, which means you can't delete something that doesn't exist.
-  res.status(400).json({
-    message: 'There is no avatar to delete'
-  });
 });
 
 // @desc    Get User's Avatar
 // @route   GET /api/v1/users/:id/avatar
 // @access  Private ==> Current User
-exports.getUserAvatar = catchAsync(async (req, res, next) => {
+export const getUserAvatar = catchAsync(async (req, res, next) => {
   // Get The User From The Database
   const user = await User.findById(req.params.id);
 
-  // Check if the user exists and the Uer's Avatar Field not equeal to NULL
+  // Check if the user exists and the user's Avatar Field not equal to NULL
   if (!user || user.avatar == null) {
     return next(
       new AppError(
@@ -122,34 +133,34 @@ exports.getUserAvatar = catchAsync(async (req, res, next) => {
 // @desc    Get All Users
 // @route   GET /api/v1/users
 // @access  Private ==> Admin
-exports.getAllUsers = catchAsync(async (req, res, next) => {
+export const getAllUsers = catchAsync(async (req, res, next) => {
   res.status(200).json(res.advancedResults);
 });
 
 // @desc    Get Single User
 // @route   GET /api/v1/users/:id
 // @access  Private ==> Admin
-exports.getUser = factory.getOne(User);
+export const getUser = getOne(User);
 
 // @desc    Create Single User
 // @route   POST /api/v1/users
 // @access  Private ==> Admin
-exports.createUser = factory.createOne(User);
+export const createUser = createOne(User);
 
 // @desc    Update Single User
 // @route   PATCH /api/v1/users/:id
 // @access  Private ==> Admin
-exports.updateUser = factory.updateOne(User);
+export const updateUser = updateOne(User);
 
 // @desc    Delete Single User
 // @route   DELETE /api/v1/users/:id
 // @access  Private ==> Admin
-exports.deleteUser = factory.deleteOne(User);
+export const deleteUser = _deleteOne(User);
 
 // @desc    Get Current User Data
 // @route   GET /api/v1/users/personal
 // @access  Private ==> Current User
-exports.getMe = catchAsync(async (req, res, next) => {
+export const getMe = catchAsync(async (req, res, next) => {
   req.params.id = req.user.id;
   next();
 });
@@ -157,7 +168,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
 // @desc    Update User Details (Name / Email)
 // @route   PATCH /api/v1/users/personal
 // @access  Private ==> Current User
-exports.updateMe = catchAsync(async (req, res, next) => {
+export const updateMe = catchAsync(async (req, res, next) => {
   // Check if the user trying to update his password
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -184,7 +195,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 // @desc    Delete current logged in user data
 // @route   DELETE /api/v1/users/personal
 // @access  Private ==> Current User
-exports.deleteMe = catchAsync(async (req, res, next) => {
+export const deleteMe = catchAsync(async (req, res, next) => {
   await User.deleteOne({ _id: req.user.id });
 
   res.status(200).json({
