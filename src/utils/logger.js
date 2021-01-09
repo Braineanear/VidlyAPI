@@ -1,34 +1,36 @@
-const winston = require('winston');
-const dotenv = require('dotenv');
+import {
+  transports as _transports,
+  format as _format,
+  createLogger,
+  config
+} from 'winston';
+import { config as _config } from 'dotenv';
 
-dotenv.config({ path: '../config/config.env' });
+_config({ path: '../config/config.env' });
 
 const transports = [];
 if (process.env.NODE_ENV !== 'development') {
-  transports.push(new winston.transports.Console());
+  transports.push(new _transports.Console());
 } else {
   transports.push(
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.cli(),
-        winston.format.splat()
-      )
+    new _transports.Console({
+      format: _format.combine(_format.cli(), _format.splat())
     })
   );
 }
 
-const LoggerInstance = winston.createLogger({
+const LoggerInstance = createLogger({
   level: process.env.LOG_LEVEL,
-  levels: winston.config.npm.levels,
-  format: winston.format.combine(
-    winston.format.timestamp({
+  levels: config.npm.levels,
+  format: _format.combine(
+    _format.timestamp({
       format: 'YYYY-MM-DD HH:mm:ss'
     }),
-    winston.format.errors({ stack: true }),
-    winston.format.splat(),
-    winston.format.json()
+    _format.errors({ stack: true }),
+    _format.splat(),
+    _format.json()
   ),
   transports
 });
 
-module.exports = LoggerInstance;
+export default LoggerInstance;
