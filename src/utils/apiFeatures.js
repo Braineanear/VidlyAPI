@@ -1,5 +1,5 @@
-const AppError = require('./appError');
-const catchAsync = require('./catchAsync');
+import AppError from './appError.js';
+import catchAsync from './catchAsync.js';
 
 const advancedResults = (model, populate) =>
   catchAsync(async (req, res, next) => {
@@ -70,4 +70,4 @@ const advancedResults = (model, populate) =>
     next();
   });
 
-module.exports = advancedResults;
+export default advancedResults;
