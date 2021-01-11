@@ -20,7 +20,11 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
-  avatar: {
+  avatarURL: {
+    type: String,
+    default: null
+  },
+  avatarPublicID: {
     type: String,
     default: null
   },
