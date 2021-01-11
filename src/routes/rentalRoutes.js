@@ -16,7 +16,14 @@ const router = Router();
 //ANY ONE CAN ACCESS THESE ROUTES
 
 //Get All Rentals Route
-router.get('/', APIFeatures(Rental), getAllRentals);
+router.get(
+  '/',
+  APIFeatures(Rental, [
+    { path: 'movie', select: 'title genre numberInStock' },
+    { path: 'customer', select: 'name isGold' }
+  ]),
+  getAllRentals
+);
 
 //====================User's Routes / Private Routes=========================//
 // Protect all routes after this middleware

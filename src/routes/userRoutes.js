@@ -4,10 +4,6 @@ import {
   getUser,
   updateMe,
   deleteMe,
-  uploadAvatar,
-  resizeImages,
-  deleteAvatar,
-  getUserAvatar,
   getAllUsers,
   createUser,
   updateUser,
@@ -24,8 +20,14 @@ import {
   updatePassword,
   restrictTo
 } from '../controllers/authController.js';
+import {
+  uploadAvatar,
+  deleteAvatar,
+  getUserAvatar
+} from '../controllers/imageController.js';
 import APIFeatures from '../utils/apiFeatures.js';
 import User from '../models/userModel.js';
+import multerUpload from '../utils/multerConfig.js';
 
 const router = Router();
 
@@ -54,7 +56,7 @@ router.route('/personal').get(getMe, getUser).patch(updateMe).delete(deleteMe);
 // Routes belong to the avatar for the Personal Route
 router
   .route('/personal/avatar')
-  .patch(uploadAvatar, resizeImages)
+  .patch(multerUpload, uploadAvatar)
   .delete(deleteAvatar);
 
 // Email Confirmation Route
