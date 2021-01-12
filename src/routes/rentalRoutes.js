@@ -18,10 +18,7 @@ const router = Router();
 //Get All Rentals Route
 router.get(
   '/',
-  APIFeatures(Rental, [
-    { path: 'movie', select: 'title genre numberInStock' },
-    { path: 'customer', select: 'name isGold' }
-  ]),
+  APIFeatures(Rental, [{ path: 'movie' }, { path: 'customer' }]),
   getAllRentals
 );
 
@@ -30,7 +27,7 @@ router.get(
 // ONLY LOGGED IN USERS CAN ACCESS THESE ROUTES
 router.use(protect);
 
-router.route('/').get(APIFeatures(Rental), getAllRentals).post(createRental);
+router.route('/').post(createRental).post(createRental);
 
 router.route('/:id').get(getRental).patch(updateRental).delete(deleteRental);
 
