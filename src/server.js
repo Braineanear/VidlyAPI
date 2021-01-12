@@ -1,10 +1,10 @@
 import chalk from 'chalk';
-import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import cluster from 'cluster';
 import os from 'os';
 // eslint-disable-next-line import/no-named-as-default-member
 import app from './app.js';
+import connectDB from './utils/dbConfig.js';
 
 const numCores = os.cpus().length;
 
@@ -61,44 +61,7 @@ const setupWorkerProcesses = () => {
 const setUpExpress = () => {
   config({ path: 'config.env' });
 
-  const DB = process.env.DATABASE_CONNECTION.replace(
-    '<PASSWORD>',
-    process.env.DATABASE_PASSWORD
-  );
-
-  mongoose.set('autoIndex', true);
-
-  const connectDB = async () => {
-    const con = await mongoose.connect(DB, {
-      useNewUrlParser: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-      useUnifiedTopology: true,
-      autoIndex: true
-    });
-
-    console.log(
-      chalk.bgGreen.black(`MongoDB Connected: ${con.connection.host}.`)
-    );
-
-    mongoose.connection.on('connected', () => {
-      console.log(chalk.bgGreen.black('Mongoose connected to db'));
-    });
-
-    mongoose.connection.on('error', (err) => {
-      console.log(chalk.bgGreen.black(err.message));
-    });
-
-    mongoose.connection.on('disconnected', () => {
-      console.log(chalk.bgGreen.black('Mongoose connection is disconnected.'));
-    });
-
-    process.on('SIGINT', async () => {
-      await mongoose.connection.close();
-      process.exit(0);
-    });
-  };
-
+  // Connect to MongoDB
   connectDB();
 
   const port = process.env.PORT || 5000;
@@ -115,14 +78,14 @@ const setUpExpress = () => {
   });
 
   // Handle unhandled promise rejections
-  // process.on('unhandledRejection', (err) => {
-  //   console.log(chalk.bgRed('UNHANDLED REJECTION! 💥 Shutting down...'));
-  //   console.log(err.name, err.message);
-  //   // Close server & exit process
-  //   server.close(() => {
-  //     process.exit(1);
-  //   });
-  // });
+  process.on('unhandledRejection', (err) => {
+    console.log(chalk.bgRed('UNHANDLED REJECTION! 💥 Shutting down...'));
+    console.log(err.name, err.message);
+    // Close server & exit process
+    server.close(() => {
+      process.exit(1);
+    });
+  });
 
   process.on('SIGTERM', () => {
     console.log(chalk.bgRed('👋 SIGTERM RECEIVED. Shutting down gracefully'));
