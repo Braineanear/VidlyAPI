@@ -16,7 +16,11 @@ const router = Router();
 //ANY ONE CAN ACCESS THESE ROUTES
 
 // Get All Movies Route
-router.get('/', APIFeatures(Movie, 'genre'), getAllMovies);
+router.get(
+  '/',
+  APIFeatures(Movie, { path: 'genre', select: 'name -_id' }),
+  getAllMovies
+);
 
 // Get Specific Movie's Data Route
 router.get('/:id', getMovie);
