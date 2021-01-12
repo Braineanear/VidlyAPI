@@ -23,7 +23,7 @@ Live demo (Feel free to visit) 👉 : https://vidly-rental-api.herokuapp.com
 
 ## API Usage
 
-Check [DevCampers API Documentation](https://documenter.getpostman.com/view/11050349/TVzRGxzR) for more info.
+Check [Vidly API Documentation](https://documenter.getpostman.com/view/11050349/TVzRGxzR) for more info.
 
 ## Deployment
 The website is deployed with git into heroku. Below are the steps taken:
