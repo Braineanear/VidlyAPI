@@ -24,8 +24,12 @@ const connectDB = async () => {
     chalk.bgGreen.black(`MongoDB Connected: ${con.connection.host}.`)
   );
 
+  mongoose.connection.on('connecting', () => {
+    console.log(chalk.bgGreen.black('Connecting to Database'));
+  });
+
   mongoose.connection.on('connected', () => {
-    console.log(chalk.bgGreen.black('Mongoose connected to db'));
+    console.log(chalk.bgGreen.black('Mongoose Connected to Database'));
   });
 
   mongoose.connection.on('error', (err) => {
@@ -33,7 +37,7 @@ const connectDB = async () => {
   });
 
   mongoose.connection.on('disconnected', () => {
-    console.log(chalk.bgGreen.black('Mongoose connection is disconnected.'));
+    console.log(chalk.bgGreen.black('Mongoose Connection is Disconnected.'));
   });
 
   process.on('SIGINT', async () => {

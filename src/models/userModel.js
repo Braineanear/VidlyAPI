@@ -3,61 +3,60 @@ import mongoose from 'mongoose';
 import validator from 'validator';
 import { hash, verify } from 'argon2';
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'Please tell us your name!']
-  },
-  email: {
-    type: String,
-    required: [true, 'Please provide your email!'],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, 'Please provide a valid email']
-  },
-  role: {
-    type: String,
-    enum: ['user', 'admin'],
-    default: 'user'
-  },
-  avatarURL: {
-    type: String,
-    default: null
-  },
-  avatarPublicID: {
-    type: String,
-    default: null
-  },
-  password: {
-    type: String,
-    required: [true, 'Please provide a password'],
-    minlength: 8,
-    select: false
-  },
-  passwordChangedAt: Date,
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-  confirmEmailToken: String,
-  isEmailConfirmed: {
-    type: Boolean,
-    default: false
-  },
-  passwordConfirm: {
-    type: String,
-    required: [true, 'Please confirm your password'],
-    validate: {
-      // This only works with CREATE & SAVE!!!!!
-      validator: function (el) {
-        return el === this.password;
-      },
-      messege: 'Passwords are not the same'
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Please tell us your name!']
+    },
+    email: {
+      type: String,
+      required: [true, 'Please provide your email!'],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, 'Please provide a valid email']
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user'
+    },
+    avatarURL: {
+      type: String,
+      default: null
+    },
+    avatarPublicID: {
+      type: String,
+      default: null
+    },
+    password: {
+      type: String,
+      required: [true, 'Please provide a password'],
+      minlength: 8,
+      select: false
+    },
+    passwordChangedAt: Date,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    confirmEmailToken: String,
+    isEmailConfirmed: {
+      type: Boolean,
+      default: false
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, 'Please confirm your password'],
+      validate: {
+        // This only works with CREATE & SAVE!!!!!
+        validator: function (el) {
+          return el === this.password;
+        },
+        messege: 'Passwords are not the same'
+      }
     }
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  { timestamp: true }
+);
 
 // Encrypting Password Using Argon2
 userSchema.pre('save', async function (next) {
