@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/Braineanear/VidlyAPI#readme",
   "dependencies": {
-    "argon2": "^0.27.1",
+    "argon2": "^0.27.2",
     "bcryptjs": "^2.4.3",
     "chalk": "^4.1.0",
     "cloudinary": "^1.25.0",
@@ -39,7 +39,7 @@
     "multer": "^1.4.2",
     "node-emoji": "^1.10.0",
     "nodemailer": "^6.5.0",
-    "sharp": "^0.27.2",
+    "sharp": "^0.29.3",
     "slugify": "^1.4.7",
     "streamifier": "^0.1.1",
     "validator": "^13.5.2",
